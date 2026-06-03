@@ -1,0 +1,108 @@
+/* ============================================================
+   Design Tokens
+   컴포넌트가 참조하는 모든 CSS 변수를 일관된 인디고/바이올렛
+   팔레트로 정의한다. 색상은 추후 교체 가능.
+   ============================================================ */
+
+:root {
+  /* ── Primitive palette ── */
+  --palette-blue-300: #93b4f5;
+  --palette-error-700: #b3261e;
+  --palette-success-700: #1a7a44;
+  --palette-tint-pink: #fde4ef;
+  --palette-tint-pink-text: #b1366f;
+  --palette-tint-purple: #ece4fd;
+  --palette-tint-purple-text: #6b3bb0;
+
+  /* ── Brand ── */
+  --color-brand-primary: #5b5bd6;
+  --color-brand-primary-hover: #4a4ac4;
+  --color-brand-secondary: #8e8eea;
+  --color-brand-selection: #e4e4fb;
+
+  /* ── Background ── */
+  --color-bg-canvas: #ffffff;
+  --color-bg-surface: #f7f8fa;
+  --color-bg-subtle: #eef0f4;
+  --color-bg-inverse: #1d1f27;
+  --color-bg-accent-subtle: #eeeefc;
+  --color-bg-disabled: #e7e9ef;
+  --color-bg-success: #e7f6ee;
+  --color-bg-warning: #fff5e3;
+  --color-bg-error: #fdeceb;
+  --color-bg-info: #e9f1fe;
+
+  /* ── Border ── */
+  --color-border-subtle: #edeef2;
+  --color-border-default: #d8dae2;
+  --color-border-hover: #b7bac6;
+  --color-border-brand: #5b5bd6;
+
+  /* ── Text ── */
+  --color-text-primary: #1d1f27;
+  --color-text-secondary: #565b6b;
+  --color-text-tertiary: #888d9c;
+  --color-text-disabled: #b3b7c2;
+  --color-text-inverse: #ffffff;
+  --color-text-accent: #5b5bd6;
+  --color-text-success: #1a7a44;
+  --color-text-warning: #aa6a09;
+  --color-text-error: #cc362f;
+  --color-text-info: #2563c9;
+
+  /* ── Icon ── */
+  --color-icon-secondary: #565b6b;
+  --color-icon-disabled: #b3b7c2;
+
+  /* ── Radius ── */
+  --radius-2xs: 4px;
+  --radius-md: 12px;
+  --radius-interactive-xs: 8px;
+  --radius-interactive-md: 16px;
+  --radius-container-md: 20px;
+
+  /* ── Spacing — raw scale ── */
+  --space-scale-4: 4px;
+  --space-scale-8: 8px;
+  --space-scale-16: 16px;
+  --space-scale-32: 32px;
+  --space-scale-80: 80px;
+
+  /* ── Spacing — vertical stack ── */
+  --space-layout-stack-xs: 4px;
+  --space-layout-stack-sm: 8px;
+  --space-layout-stack-md: 16px;
+  --space-layout-stack-lg: 24px;
+  --space-layout-stack-xl: 40px;
+
+  /* ── Spacing — horizontal inline ── */
+  --space-layout-inline-xs: 4px;
+  --space-layout-inline-sm: 8px;
+  --space-layout-inline-md: 12px;
+  --space-layout-inline-lg: 16px;
+  --space-layout-inline-xl: 24px;
+
+  /* ── Spacing — shared ── */
+  --space-layout-gutter: 24px;
+  --space-comp-gap-icon-label: 8px;
+
+  /* ── Typography size ── */
+  --text-overline: 11px;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-sm-alt: 14px;
+  --text-md: 16px;
+
+  /* ── Letter spacing ── */
+  --tracking-xs: -0.02em;
+  --tracking-md: -0.01em;
+
+  /* ── Elevation ── */
+  --shadow-section-md: 0 1px 3px rgba(20, 21, 35, 0.06);
+  --shadow-elevation-mid: 0 6px 20px rgba(20, 21, 35, 0.1);
+  --shadow-elevation-high: 0 16px 40px rgba(20, 21, 35, 0.18);
+
+  /* ── Font ── */
+  --font-primary: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Apple SD Gothic Neo", "Noto Sans KR", "Pretendard", sans-serif;
+}
