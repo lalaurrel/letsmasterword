@@ -8,6 +8,7 @@ import { Card } from "@/lib/components/molecules/Card/Card";
 import { InputHero } from "../components/InputHero";
 import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
 import { parsePassage, computeProgress } from "../lib/reading";
+import { speakTTS } from "../lib/pronunciation";
 
 const SAMPLE =
   "The sun rises in the east.\nLearning English is a wonderful journey.\nPractice makes perfect, so read every day.";
@@ -54,6 +55,13 @@ export function SpeechView() {
     reset();
     setPassage(null);
   };
+
+  // 본문 읽어주기(TTS) — 마이크가 TTS를 잡지 않도록 인식은 멈추고 재생
+  const listen = (text: string) => {
+    if (listening) stop();
+    speakTTS(text);
+  };
+  const listenAll = () => listen(sentences.map((s) => s.text).join(" "));
 
   if (!supported) {
     return (
@@ -130,15 +138,20 @@ export function SpeechView() {
             label="읽기 진행률"
           />
         </Inline>
-        <Button
-          variant={listening ? "primary" : "outline"}
-          size="md"
-          showStartIcon
-          iconName={listening ? "stop" : "speak"}
-          onClick={listening ? stop : start}
-        >
-          {listening ? "듣는 중… (중지)" : "🎤 읽기 시작"}
-        </Button>
+        <Inline gap="sm">
+          <Button variant="ghost" size="md" onClick={listenAll}>
+            🔊 전체 듣기
+          </Button>
+          <Button
+            variant={listening ? "primary" : "outline"}
+            size="md"
+            showStartIcon
+            iconName={listening ? "stop" : "speak"}
+            onClick={listening ? stop : start}
+          >
+            {listening ? "듣는 중… (중지)" : "🎤 읽기 시작"}
+          </Button>
+        </Inline>
       </Inline>
 
       {error && (
@@ -161,7 +174,7 @@ export function SpeechView() {
                     : ""
               }
             >
-              <Inline gap="md" align="start" className="!items-start">
+              <div className="flex items-start gap-3">
                 {/* 번호 / 체크 */}
                 <div
                   className={
@@ -177,7 +190,7 @@ export function SpeechView() {
                 </div>
 
                 {/* 문장 단어들 */}
-                <p className="text-[18px] sm:text-[22px] leading-[1.6] flex flex-wrap gap-x-2 gap-y-1">
+                <p className="flex-1 text-[18px] sm:text-[22px] leading-[1.6] flex flex-wrap gap-x-2 gap-y-1">
                   {sentence.words.map((w, wi) => {
                     const read = progress.readFlags[si][wi];
                     const isNext =
@@ -199,7 +212,16 @@ export function SpeechView() {
                     );
                   })}
                 </p>
-              </Inline>
+
+                {/* 이 문장 읽어주기 */}
+                <Button
+                  variant="icon"
+                  size="md"
+                  iconName="speak"
+                  className="flex-shrink-0"
+                  onClick={() => listen(sentence.text)}
+                />
+              </div>
             </Card>
           );
         })}
