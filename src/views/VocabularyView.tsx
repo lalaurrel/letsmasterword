@@ -11,6 +11,7 @@ import { Flashcard } from "../components/Flashcard";
 import { InputHero } from "../components/InputHero";
 import { usePronunciation } from "../hooks/usePronunciation";
 import { parseText, shuffleCards, type Card as WordCard } from "../lib/parse";
+import { extractText } from "../lib/docimport";
 
 export function VocabularyView() {
   const [cards, setCards] = useState<WordCard[]>([]);
@@ -57,14 +58,15 @@ export function VocabularyView() {
   const loadFile = useCallback(
     (file: File) => {
       setError(null);
-      const reader = new FileReader();
-      reader.onload = () =>
-        loadFromText(
-          String(reader.result ?? ""),
-          "단어를 찾지 못했습니다. txt 파일 내용을 확인해 주세요.",
+      extractText(file)
+        .then((text) =>
+          loadFromText(text, "단어를 찾지 못했습니다. 파일 내용을 확인해 주세요."),
+        )
+        .catch(() =>
+          setError(
+            "이 파일을 읽지 못했습니다. .txt 또는 .hwpx로 저장해 다시 올려주세요.",
+          ),
         );
-      reader.onerror = () => setError("파일을 읽는 중 오류가 발생했습니다.");
-      reader.readAsText(file, "UTF-8");
     },
     [loadFromText],
   );
@@ -160,8 +162,8 @@ export function VocabularyView() {
 
                 {inputMode === "file" ? (
                   <FileUpload
-                    accept=".txt,text/plain"
-                    placeholder="txt 단어장을 드래그하거나 클릭하여 업로드"
+                    accept=".txt,.hwp,.hwpx,text/plain"
+                    placeholder="txt · 한글(.hwp/.hwpx) 단어장을 드래그하거나 클릭하여 업로드"
                     maxSizeLabel={() => "단어 / 뜻 구분자(- , 탭 : 공백)는 자동 인식"}
                     onFileSelect={loadFile}
                   />
