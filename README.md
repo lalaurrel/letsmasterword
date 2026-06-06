@@ -1,17 +1,14 @@
 # 🟦 Speakly
 
-> 학생들이 **스스로 공부할 수 있도록** 돕는 영어 자기주도학습 웹앱
+> 학생의 **영어 자기주도학습**을 돕는 웹 서비스
 
-## 왜 만들었나
+## WHY?
 
-단어장을 외울 때 늘 아쉬웠던 점이 있었습니다.
-
-- **단어장에 "읽어주는" 기능이 있으면 좋겠다.** 철자만 보고 외우는 것보다, 정확한 미국식 발음을 함께 들으면 암기가 훨씬 쉬워집니다. 그래서 단어 카드마다 발음을 들려주도록 만들었습니다.
-- **본문을 소리 내어 읽는 것만으로도 학습 효과가 생긴다.** 눈으로만 읽는 것보다 입으로 소리 내어 읽으면 기억에 더 잘 남습니다. 그런데 "내가 어디까지 제대로 읽었는지"가 눈에 보이면 훨씬 직관적이고 동기부여가 됩니다. 그래서 읽은 단어가 **실시간으로 색이 바뀌고**, 문장을 다 읽으면 **체크(✓)** 되도록 만들었습니다.
-
-즉, 선생님이 옆에 없어도 학생이 혼자서 **단어를 듣고 외우고, 본문을 소리 내어 읽으며 스스로 점검**할 수 있게 하는 것이 목표입니다.
-
-그리고 이 모든 발음·음성 기능은 **유료 AI API 없이**, 브라우저 기본 기능과 무료 공개 API만으로 동작합니다.
+- 단어 암기 시 **발음 청취 기능 부재** → 철자만으로 외우기 비효율적인 문제 존재
+- 정확한 미국식 발음 동시 제공 시 암기 용이 → **카드별 발음 재생** 구현
+- 본문 음독만으로도 학습 효과 발생. 단, "어디까지 읽었는지" 가시화 시 직관성·동기부여 향상 → **읽은 단어 실시간 색 변화 + 문장 완료 시 체크(✓)** 구현
+- 목표: 교사 부재 시에도 학생이 **단어 청취·암기 + 본문 음독·자가 점검** 수행 가능
+- 전 음성 기능: **유료 AI API 미사용**, 브라우저 기본 기능 + 무료 공개 API만으로 동작
 
 ---
 
@@ -19,49 +16,49 @@
 
 ### 📚 Vocabulary — 듣고 외우는 단어장
 - txt 파일 업로드 **또는** 직접 입력으로 단어장 생성
-- 단어가 **카드로 한 장씩** 표시되고, 카드마다 **미국식 발음**을 들려줌
-- 발음기호(IPA) 표시, 뜻 가리기/보기로 셀프 테스트, 이전/다음, 섞기, 진행률
+- 단어를 **카드 한 장씩** 표시 + 카드별 **미국식 발음** 재생
+- 발음기호(IPA) 표시, 뜻 가리기/보기(셀프 테스트), 이전/다음, 섞기, 진행률 제공
 
 ### 🎤 Speech — 소리 내어 읽기 연습
-- 영어 본문을 넣으면 문장 단위(`1·2·3…`)로 정리
-- 🎤 버튼을 누르고 읽으면, 인식된 단어가 **하나씩 초록색으로** 바뀜
-- 다음에 읽을 단어는 밑줄로 안내, 문장을 다 읽으면 번호가 **✓** 로 체크
-- 본문을 전부 읽으면 완료 표시 → "어디까지 읽었는지"가 한눈에 보임
+- 영어 본문 입력 시 문장 단위(`1·2·3…`)로 분해
+- 🎤 버튼 후 음독 → 인식된 단어 **하나씩 초록색 전환**
+- 다음 읽을 단어 밑줄 안내, 문장 완독 시 번호 **✓** 처리
+- 본문 전체 완독 시 완료 표시 → 진행도 직관적 확인 가능
 
 ---
 
 ## 어떻게 구현했나
 
-### 1. 단어장 파싱 — 형식에 관대하게
-학생/선생님이 가진 단어장은 형식이 제각각입니다. 그래서 한 줄에서 단어와 뜻을 **자동으로** 나눕니다 (우선순위 순): 탭 → ` - `(대시) → 쉼표 → 콜론 → 2칸 이상 공백. 구분자가 전혀 없어도 **한글이 처음 나오는 지점**을 기준으로 앞은 단어, 뒤는 뜻으로 인식합니다. (`apple 사과`, `diligent부지런한` 같은 것도 처리)
-→ 핵심 로직: [`src/lib/parse.ts`](src/lib/parse.ts)
+### 1. 단어장 파싱 
+- 단어장 형식 제각각 문제 → 한 줄에서 단어/뜻 **자동 분리**
+- 구분자 우선순위: 탭 → ` - `(대시) → 쉼표 → 콜론 → 2칸 이상 공백
+- 구분자 부재 시 **한글 시작 지점** 기준 분리 (`apple 사과`, `diligent부지런한` 처리)
+- → [`src/lib/parse.ts`](src/lib/parse.ts)
 
-### 2. 발음 — mp3 우선, 없으면 음성 합성 (AI 없음)
-1. 무료 **Dictionary API**(`api.dictionaryapi.dev`)에 단어를 조회해 **실제 사람이 녹음한 mp3**(미국식 `-us` 우선)와 발음기호를 받아 재생합니다.
-2. mp3가 없거나 오프라인이면, 브라우저 내장 **Web Speech API(TTS)** 로 그 자리에서 음성을 합성합니다.
+### 2. 발음 
+- 무료 **Dictionary API**(`api.dictionaryapi.dev`) 조회 → **실제 사람 녹음 mp3**(미국식 `-us` 우선) + 발음기호 재생
+- mp3 부재/오프라인 시 → 브라우저 **Web Speech API(TTS)** 로 즉시 합성
+- mp3 별도 준비 불필요, 조회 결과 캐시로 재요청 감소
+- → [`src/lib/pronunciation.ts`](src/lib/pronunciation.ts), [`src/hooks/usePronunciation.ts`](src/hooks/usePronunciation.ts)
 
-즉 사용자는 mp3 파일을 따로 준비할 필요가 없습니다. 한 번 조회한 결과는 캐시해 재요청을 줄입니다.
-→ [`src/lib/pronunciation.ts`](src/lib/pronunciation.ts), [`src/hooks/usePronunciation.ts`](src/hooks/usePronunciation.ts)
-
-### 3. 읽기 인식 — 들은 말을 본문과 순서대로 대조
-브라우저 내장 **음성 인식(Web Speech API `SpeechRecognition`)** 으로 마이크 음성을 텍스트로 바꿉니다. 이 텍스트를 본문 단어와 **앞에서부터 순서대로 대조**합니다.
-- 각 본문 단어를, 인식된 단어 스트림에서 작은 윈도우(오인식 일부 허용) 안에서 찾으면 "읽음"으로 표시하고 다음 단어로 진행
-- 첫 불일치에서 멈추므로 **문장 1 → 2 → 3 순서**가 보장됨
-- 정규화(소문자·구두점 제거)로 `Apple,` 와 `apple` 을 같게 처리
-- 매 인식 이벤트마다 전체를 다시 계산해 **실시간 하이라이트**가 자연스럽게 진행
-
-→ 매칭 로직: [`src/lib/reading.ts`](src/lib/reading.ts), 음성 인식 훅: [`src/hooks/useSpeechRecognition.ts`](src/hooks/useSpeechRecognition.ts)
+### 3. 읽기 인식 
+- 브라우저 **음성 인식(`SpeechRecognition`)** 으로 마이크 음성 → 텍스트 변환
+- 본문 단어와 **앞에서부터 순서 대조**, 작은 윈도우 내 일치 시 "읽음" 처리 (오인식 일부 허용)
+- 첫 불일치에서 중단 → **문장 1 → 2 → 3 순서 보장**
+- 정규화(소문자·구두점 제거)로 `Apple,` = `apple` 동일 처리
+- 매 인식 이벤트마다 전체 재계산 → **실시간 하이라이트**
+- → [`src/lib/reading.ts`](src/lib/reading.ts), [`src/hooks/useSpeechRecognition.ts`](src/hooks/useSpeechRecognition.ts)
 
 ### 4. 화면 구성
-- 홈에서 **Vocabulary / Speech** 두 모드를 고르고, 각 모드는 입력 → 학습 화면으로 이어집니다.
-- UI는 재사용 가능한 **디자인 시스템 컴포넌트**(`components/`)와 CSS 변수 기반 **디자인 토큰**([`src/styles/tokens.css`](src/styles/tokens.css))으로 일관되게 구성했습니다.
-- 모바일·데스크탑 **반응형**으로, 화면 크기에 맞춰 카드/글자 크기와 레이아웃이 조정됩니다.
+- 홈에서 **Vocabulary / Speech** 모드 선택 → 입력 → 학습 화면 흐름
+- 재사용 **디자인 시스템 컴포넌트**(`components/`) + CSS 변수 **디자인 토큰**([`src/styles/tokens.css`](src/styles/tokens.css))으로 일관 구성
+- **모바일·데스크탑 반응형** — 화면 크기별 카드/글자/레이아웃 조정
 
 ---
 
 ## 기술 스택
-- **Vite + React + TypeScript + Tailwind CSS** (정적 SPA, 빌드 산출물 `dist/`)
-- 발음/음성: **Dictionary API + Web Speech API(TTS · SpeechRecognition)** — 외부 AI·유료 API 없음
+- **Vite + React + TypeScript + Tailwind CSS** (정적 SPA, 산출물 `dist/`)
+- 발음/음성: **Dictionary API + Web Speech API(TTS · SpeechRecognition)** 
 
 ---
 
@@ -69,12 +66,12 @@
 
 ```bash
 npm install
-npm run dev      # 개발 서버 (http://localhost:5173)
-npm run build    # 타입체크 + 번들 → dist/
+npm run dev      
+npm run build   
 npm run preview
 ```
 
-> Speech(음성 인식)는 **Chrome·Edge 권장**(Firefox 미지원), 마이크 권한이 필요하며 **HTTPS에서 동작**합니다. (Vercel 배포 시 기본 HTTPS라 문제없습니다.)
+> Speech(음성 인식): **Chrome·Edge 권장**(Firefox 미지원), 마이크 권한 필요, **HTTPS에서 동작**(Vercel 기본 HTTPS).
 
 ---
 
@@ -87,7 +84,7 @@ ambiguous: 애매모호한
 resilient	회복력 있는
 gregarious 사교적인
 ```
-`#`으로 시작하는 줄과 빈 줄은 무시됩니다. 예시: [sample.txt](sample.txt)
+`#` 시작 줄·빈 줄 무시. 예시: [sample.txt](sample.txt)
 
 ## 단축키 (Vocabulary 카드 화면)
 
@@ -99,4 +96,3 @@ gregarious 사교적인
 
 ---
 
-© 2026 CQ Institution Inc.
