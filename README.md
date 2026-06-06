@@ -33,13 +33,11 @@
 - 단어장 형식 제각각 문제 → 한 줄에서 단어/뜻 **자동 분리**
 - 구분자 우선순위: 탭 → ` - `(대시) → 쉼표 → 콜론 → 2칸 이상 공백
 - 구분자 부재 시 **한글 시작 지점** 기준 분리 (`apple 사과`, `diligent부지런한` 처리)
-- → [`src/lib/parse.ts`](src/lib/parse.ts)
 
 ### 2. 발음 
 - 무료 **Dictionary API**(`api.dictionaryapi.dev`) 조회 → **실제 사람 녹음 mp3**(미국식 `-us` 우선) + 발음기호 재생
 - mp3 부재/오프라인 시 → 브라우저 **Web Speech API(TTS)** 로 즉시 합성
 - mp3 별도 준비 불필요, 조회 결과 캐시로 재요청 감소
-- → [`src/lib/pronunciation.ts`](src/lib/pronunciation.ts), [`src/hooks/usePronunciation.ts`](src/hooks/usePronunciation.ts)
 
 ### 3. 읽기 인식 
 - 브라우저 **음성 인식(`SpeechRecognition`)** 으로 마이크 음성 → 텍스트 변환
@@ -47,12 +45,6 @@
 - 첫 불일치에서 중단 → **문장 1 → 2 → 3 순서 보장**
 - 정규화(소문자·구두점 제거)로 `Apple,` = `apple` 동일 처리
 - 매 인식 이벤트마다 전체 재계산 → **실시간 하이라이트**
-- → [`src/lib/reading.ts`](src/lib/reading.ts), [`src/hooks/useSpeechRecognition.ts`](src/hooks/useSpeechRecognition.ts)
-
-### 4. 화면 구성
-- 홈에서 **Vocabulary / Speech** 모드 선택 → 입력 → 학습 화면 흐름
-- 재사용 **디자인 시스템 컴포넌트**(`components/`) + CSS 변수 **디자인 토큰**([`src/styles/tokens.css`](src/styles/tokens.css))으로 일관 구성
-- **모바일·데스크탑 반응형** — 화면 크기별 카드/글자/레이아웃 조정
 
 ---
 
