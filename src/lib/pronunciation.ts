@@ -107,14 +107,15 @@ function naturalizeForTTS(text: string): string {
   );
 }
 
-/** 브라우저 내장 TTS로 미국식 발음 재생. onDone은 종료/실패 시 호출. */
-export function speakTTS(word: string, onDone?: () => void): void {
+/** 브라우저 내장 TTS로 미국식 발음 재생. onDone은 종료/실패 시 호출. rate: 0.5~1.5(기본 1). */
+export function speakTTS(word: string, onDone?: () => void, rate = 1): void {
   if (!("speechSynthesis" in window)) {
     onDone?.();
     return;
   }
   const u = new SpeechSynthesisUtterance(naturalizeForTTS(word));
   u.lang = "en-US";
+  u.rate = Math.max(0.5, Math.min(1.5, rate));
   const voice = pickUsVoice();
   if (voice) u.voice = voice;
   u.onend = () => onDone?.();

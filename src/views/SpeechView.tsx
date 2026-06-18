@@ -16,6 +16,7 @@ const SAMPLE =
 export function SpeechView() {
   const [draft, setDraft] = useState("");
   const [passage, setPassage] = useState<string | null>(null);
+  const [rate, setRate] = useState(1); // 본문 읽어주기 속도
 
   const { supported, listening, transcript, error, start, stop, reset } =
     useSpeechRecognition("en-US");
@@ -59,7 +60,7 @@ export function SpeechView() {
   // 본문 읽어주기(TTS) — 마이크가 TTS를 잡지 않도록 인식은 멈추고 재생
   const listen = (text: string) => {
     if (listening) stop();
-    speakTTS(text);
+    speakTTS(text, undefined, rate);
   };
   const listenAll = () => listen(sentences.map((s) => s.text).join(" "));
 
@@ -153,6 +154,28 @@ export function SpeechView() {
           </Button>
         </Inline>
       </Inline>
+
+      {/* 읽어주기 속도 */}
+      <div className="flex items-center gap-2">
+        <span className="text-[13px] text-[var(--color-text-tertiary)]">읽어주기 속도</span>
+        <div className="inline-flex items-center gap-1 rounded-full border border-[var(--color-border-subtle)] bg-[var(--color-bg-canvas)] p-1">
+          {[0.5, 0.75, 1, 1.25].map((r) => (
+            <button
+              key={r}
+              type="button"
+              onClick={() => setRate(r)}
+              className={
+                "h-7 rounded-full px-3 text-[13px] transition-colors cursor-pointer " +
+                (rate === r
+                  ? "bg-[var(--color-bg-inverse)] text-white font-medium"
+                  : "bg-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]")
+              }
+            >
+              {r}×
+            </button>
+          ))}
+        </div>
+      </div>
 
       {error && (
         <p className="text-[14px] text-[var(--color-text-error)]">{error}</p>
